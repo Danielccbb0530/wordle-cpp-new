@@ -33,6 +33,11 @@ void putstring(string s) {
 		outtextxy(cursorx, cursory, s[i]), cursorx += 10;
 	return;
 }  // 在游戏进程中输出
+void putstring2(string s) {
+	for (int i = 0; i < (int)(s.size()); i++)
+		outtextxy(cursorx, cursory, s[i]), cursorx += 30;
+	return;
+}
 void putccc(char c) {
 	outtextxy(cursorx, cursory, c);
 	cursorx += 10;
@@ -55,9 +60,9 @@ void putint(int x) {
 void button() {
 	putstring("  ");
 	line(10, cursory - 2, 10, cursory + 18);
-	line(10, cursory + 18, 290, cursory + 18);
-	line(290, cursory + 18, 290, cursory - 2);
-	line(290, cursory - 2, 10, cursory - 2);
+	line(10, cursory + 18, 350, cursory + 18);
+	line(350, cursory + 18, 350, cursory - 2);
+	line(350, cursory - 2, 10, cursory - 2);
 	return;
 }	// 按钮列表
 void button2(int row) {
@@ -72,6 +77,11 @@ void changeline() {
 	cursorx = 0;
 	return;
 } // 换行
+void changeline2() {
+	cursory += 30;
+	cursorx = 0;
+	return;
+}
 string readstring(bool soft_keyboard = false) {
 	int basex = cursorx;
 	string str;
@@ -162,25 +172,58 @@ void pause() {
 	}
 	return;
 } // 暂停并增加返回键
+void button1() {
+	putstring("  ");
+	line(200, cursory - 10, 200, cursory + 30);
+	line(200, cursory + 30, 550, cursory + 30);
+	line(550, cursory + 30, 550, cursory - 10);
+	line(550, cursory - 10, 200, cursory - 10);
+	return;
+}
+void pause1() {
+	button1();
+	putstring("0)   continue");
+	ExMessage EM;
+	while (1) {
+		EM = getmessage();
+		if (EM.message == WM_CHAR) {
+			if (EM.ch == '0') break;
+		}
+		if (EM.lbutton) {
+			if (EM.y >= cursory - 10 && EM.y <= cursory + 30 && EM.x >= 200 && EM.x <= 550)
+				break;
+		}
+	}
+	return;
+}
 string user;
+/*
 #define back vals["COLOR_BACK"]
 #define text vals["COLOR_TEXT"]
 #define red vals["COLOR_RED"]
 #define green vals["COLOR_GREEN"]
 #define blue vals["COLOR_BLUE"]
 #define yellow vals["COLOR_YELLOW"]
-#define purple vals["COLOR_PURPLE"]
+#define purple vals["COLOR_PURPLE"]*/
+//WHITE
+#define back WHITE
+#define text BLACK
+#define red LIGHTMAGENTA
+#define green GREEN	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),10)
+#define blue BLUE  //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),9)
+#define yellow BLACK  //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),14)
+#define purple CYAN   //SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),13)
 void scta(int clr) {
 	settextcolor(clr);
 	return;
 }
 vector<pair<char, int> > hist[100010];
-int cnt[100];
+int cnt[10000];
 int col[100010];
 int system(string s) {
 	return system(s.data());
 }
-int bad[100];
+int bad[1000];
 string det;
 map<string, int> vals;
 set<string> inter;
@@ -232,6 +275,8 @@ pair<int, int> decode(string rating) {
 }
 void printstate(int rounds, int wid, int rounds_disp) {
 	clear_screen();
+	//setbkcolor();
+	cleardevice();
 	scta(text);
 	putstring("Wordle > Guess Word"); changeline();
 	putstring("Try #"); putint(rounds_disp); changeline();
@@ -255,7 +300,7 @@ void printstate(int rounds, int wid, int rounds_disp) {
 			putccc(keyboard[i][j]);
 			scta(text);
 		}
-		changeline();
+		changeline(); 
 	}
 	putint((int)(answers[wid].size()));
 	putstring(" letters."); changeline();
@@ -863,17 +908,17 @@ void edits(string name) {
 	return;
 }
 
-void settings(){
+void settings() {
 	clear_screen();
 	putstring("Wordle > Settings"); changeline();
-	putstring("Setting doesn't exist now.'");changeline();
+	putstring("Setting doesn't exist now.'"); changeline();
 	pause();
 	return;
 }
-void update(){
+void update() {
 	clear_screen();
 	putstring("Wordle > Update"); changeline();
-	putstring("Update doesn't exist now.'");changeline();
+	putstring("Update doesn't exist now.'"); changeline();
 	pause();
 	return;
 }
@@ -961,7 +1006,7 @@ void EntryofFinalChallenge() {
 		string ssss;
 		while (1) {
 			ssss = readstring();   // 如果是true,那么启用键盘
-			if (ssss != "") break; 
+			if (ssss != "") break;
 			cursory -= 20;
 		}
 		if (ssss == "help!") {
@@ -1034,6 +1079,7 @@ void EntryofFinalChallenge() {
 		} // green->red yellow->green red->yellow调整了颜色顺序
 		for (int i = 0; i < (int)(answers[id].size()); i++)
 			hist[hists].push_back(make_pair(ssss[i] - 'A' + 'a', col[i]));
+		//printstate2(hists - 1, id, round);
 		if (GR == (int)(answers[id].size())) {
 			printstate2(hists, id, round);
 			putstring("Guessed correctly after ");
@@ -1120,59 +1166,18 @@ void Rules_of_Final_Challenge() {
 			putstring("Now, the letter a and w might not be shown as yellow, but green."); changeline();
 			putstring("In another case, letter a might be shown as red");
 			changeline();
-			int BG = cursory;
-			button();
-			putstring("0)   exit"); changeline();
-			int ED = cursory;
-			ExMessage EM;
-			while (1) {
-				EM = getmessage();
-				int t = 0;
-				if (EM.message == WM_CHAR) {
-					t = EM.ch - '0';
-					if (t == 0) t = 1;
-					else continue;
-				}
-				else if (EM.lbutton) {
-					if (EM.y >= BG - 2 && EM.y <= ED - 2 && EM.x >= 10 && EM.x <= 290) {
-						t = (EM.y - BG + 22) / 20;
-					}
-					else continue;
-				}
-				else continue;
-				if (t == 1) return;
-				break;
-			}
+			pause();
+			return;
 		}
 		else {
 			clear_screen();
 			putstring("Wordle > Easteregg > Final challenge > Joker"); changeline();
 			putstring("No rules here."); changeline();
-			int BG = cursory;
-			button();
-			putstring("0)   exit"); changeline();
-			int ED = cursory;
-			ExMessage EM;
-			while (1) {
-				EM = getmessage();
-				int t = 0;
-				if (EM.message == WM_CHAR) { // 字符消息
-					t = EM.ch - '0';
-					if (t == 0) {
-						t = 1;
-					}
-				}
-				else if (EM.lbutton) {
-					if (EM.y >= BG - 2 && EM.y <= ED - 2 && EM.x >= 10 && EM.x <= 290) {
-						t = (EM.y - BG + 22) / 20;
-					}
-					else continue;
-				}
-				else continue;
-				if (t == 1)
-					return;
-				break;
-			}
+			IMAGE img;
+			loadimage(&img, "joker.jpg", 100, 100);
+			putimage(0, 100, &img);
+			pause();
+			return;
 		}
 	}
 	return;
@@ -1216,8 +1221,8 @@ void Finalchallenge() {
 	}
 	return;
 }
-void Rules_of_Final_Challenge2(){
-	while (1){
+void Rules_of_Final_Challenge2() {
+	while (1) {
 		clear_screen();
 		putstring("Wordle > easter egg > Final challenge2 > Rules of Final challenge 2");
 		changeline();
@@ -1234,69 +1239,72 @@ void Rules_of_Final_Challenge2(){
 	}
 }
 //
-void printstate3(int rounds, int wid, int rounds_disp){
+void printstate3(int rounds, int wid, int rounds_disp) {
 	clear_screen();
 	scta(text);
 	putstring("Wordle > Easteregg > Final challenge > Start "); changeline();
 	putstring("Try #"); putint(rounds_disp); changeline();
 	int CX = cursorx, CY = cursory;
-	putint((int)(wordmatrix[wid].size()*5));
-	putstring(" letters."); changeline();  
-	for (int i=0;i<(int)(wordmatrix[wid*5].size()*5);i++){
+	putint((int)(wordmatrix[wid].size() * 5));
+	putstring(" letters."); changeline();
+	for (int i = 0; i < (int)(wordmatrix[wid * 5].size() * 5); i++) {
 		putccc(det[i]);
-		if (i%5==4)
+		if (i % 5 == 4)
 			changeline();
 	}
 	changeline();
 	hist[rounds + 1].clear();
 	for (int i = 1; i <= rounds; i++) {
 		for (int j = 0; j < 5; j++) {
-			int tempo=0;
-			/*for (int k=0;k<5;k++)
+			int tempo = 0;
+			for (int k=0;k<5;k++)
 				if (hist[i][k*5+j].second==green){
 					tempo=1;
 				}
 			if (tempo==1)
 				scta(green);
 			else
-				scta(hist[i][j].second);*/
+				scta(hist[i][j].second);
 			putccc(hist[i][j].first); ///
+			//cout << hist[i][j].first;
 		}
+		//cout << endl;
 		changeline();
 	}
+	//cout << endl;
 	scta(text);
 	return;
 }
-void EntryofFinalChallenge2(){
+void EntryofFinalChallenge2() {
 	clear_screen();
-	int id = rand() % (int)(wordmatrix.size()/5);  // 5个一循环
+	int id = rand() % (int)(wordmatrix.size() / 5);  // 5个一循环
 	scta(text);
 	int round = 0;
 	memset(bad, 0, sizeof(bad));
 	det = "";
-	
-	id=id-id%5;
-	for (int i = 0; i < 5*(int)(wordmatrix[id].size()); i++)
+
+	id = id - id % 5;
+	for (int i = 0; i < 5 * (int)(wordmatrix[id].size()); i++)
 		det += "_";
 	int hists = 0;
-	while (1){
+	while (1) {
 		putstring("Wordle > Easteregg > Final challenge2 > Start"); changeline();
 		hists++;
 		round++;
-		if (round == vals["TURNS"] + 1) {
+		if (round >= 11) {
 			printstate3(hists - 1, id, round - 1);
 			scta(red);
 			putstring("GAME OVER!"); changeline();
 			scta(green);
-			putstring("ANSWER: "); 
+			putstring("ANSWER: ");
 			changeline();
-			for (int i=0;i<5;i++){
-				putstring(wordmatrix[id+i]);
+			for (int i = 0; i < 5; i++) {
+				putstring(wordmatrix[id + i]);
 				changeline();
 			}
 			scta(text);
 			int score = 0;
-			for (int i = 0; i < 5*(int)(wordmatrix[id].size()); i++)
+			for (int i = 0; i < 5 * (int)(wordmatrix[id].size()); i++)
 				if (det[i] != '_' && det[i] != '\n') score += 100;
 			putstring("Score:");
 			clr(score);
@@ -1320,7 +1328,7 @@ void EntryofFinalChallenge2(){
 		string tttt, ssss;
 		while (1) {
 			tttt = readstring();   // 如果是true,那么启用键盘
-			if (tttt != "") break; 
+			if (tttt != "") break;
 			cursory -= 20;
 		}
 		bool flag = true;
@@ -1331,15 +1339,22 @@ void EntryofFinalChallenge2(){
 			}
 		}
 		ssss = tttt + tttt + tttt + tttt + tttt;
+		//cout << ssss << endl;
+		//cout << ssss.size() << endl;
+		for (int i = 0; i < (int)(ssss.size()); i++) {
+			col[i] = red;
+		}
 		if (!flag) {
 			for (int i = 0; i < (int)(ssss.size()); i++)
 				hist[hists].push_back(make_pair(ssss[i], blue));
 			round--;
 			continue;
 		}
-		for (int i = 0; i < (int)(ssss.size()); i++) 
+		
+		for (int i = 0; i < (int)(ssss.size()); i++)
 			if (ssss[i] <= 'Z')
 				ssss[i] = ssss[i] - 'A' + 'a';
+		
 		if ((int)(tttt.size()) != (int)(wordmatrix[id].size())) {
 			for (int i = 0; i < (int)(ssss.size()); i++)
 				hist[hists].push_back(make_pair(ssss[i], purple));
@@ -1354,46 +1369,73 @@ void EntryofFinalChallenge2(){
 			round--;
 			continue;
 		}
+		printstate3(hists - 1, id, round);
 		memset(cnt, 0, sizeof(cnt));
 		for (int j = 0; j < 5; j++)
-			for (int i = 0; i < (int)(wordmatrix[id+j].size()); i++)
-				cnt[wordmatrix[id+j][i] - 'a']++;
-		for (int j=0;j<5;j++)
-			for (int i = 0; i < (int)(wordmatrix[id+j].size()); i++) {
-				if (ssss[j*5+i] == wordmatrix[id+j][i]) {
-					cnt[ssss[j*5+i] - 'a']--;
-					col[j*5+i] = green;
-					det[j*5+i] = ssss[j*5+i];
-					bad[ssss[j*5+i] - 'a'] = 3;
-					ssss[j*5+i] = ssss[j*5+i] - 'a' + 'A';
+			for (int i = 0; i < (int)(wordmatrix[id + j].size()); i++)
+				cnt[wordmatrix[id + j][i] - 'a']++;
+		
+		for (int j = 0; j < 5; j++)
+			for (int i = 0; i < (int)(wordmatrix[id + j].size()); i++) {
+				if (ssss[j * 5 + i] == wordmatrix[id + j][i]) {
+					cnt[ssss[j * 5 + i] - 'a']--;
+					col[j * 5 + i] = green;
+					det[j * 5 + i] = ssss[j * 5 + i];
+					bad[ssss[j * 5 + i] - 'a'] = 3;
+					//ssss[j * 5 + i] = ssss[j * 5 + i] - 'a' + 'A';
+					//cout << ssss[j * 5 + i] << " ";
+					//putccc(ssss[j * 5 + i]);
 				}
 			}
-		for (int i = 0; i < 5*(int)(wordmatrix[id].size()); i++) {
-			if (col[i]==green || col[i]==blue || col[i]==purple) {
+		cout << endl;
+		printstate3(hists - 1, id, round);
+		for (int i = 0; i < 5 * (int)(wordmatrix[id].size()); i++) {
+			if (col[i] == green || col[i] == blue || col[i] == purple) {
 				continue;
 			}
 			else
 			{
-				col[i]=red;
-				if (!bad[ssss[i] - 'a']) 
+				col[i] = red;
+				if (!bad[ssss[i] - 'a'])
 					bad[ssss[i] - 'a'] = 1;
-				ssss[i] = ssss[i] - 'a' + 'A';
+				//ssss[i] = ssss[i] - 'a' + 'A';
 			}
 		}
-		for (int j=0;j<5;j++)
-			for (int i = 0; i < (int)(wordmatrix[id+j].size()); i++)
-				hist[hists].push_back(make_pair(ssss[j*5+i] - 'A' + 'a', col[j*5+i]));	
+		printstate3(hists - 1, id, round);
+		for (int j = 0; j < 5; j++)
+			for (int i = 0; i < (int)(wordmatrix[id + j].size()); i++) {
+				//hist[hists].push_back(make_pair(ssss[j * 5 + i] - 'A' + 'a', col[j * 5 + i]));
+				hist[hists].push_back(make_pair(ssss[j * 5 + i] , col[j * 5 + i]));
+			}
+				
+
 		int GR = 0;
-		for (int i=0;i<5;i++)
-			for (int j=0;j<5;j++)
-				if (col[i*5+j]==green)
+		for (int i = 0; i < 5; i++)
+			for (int j = 0; j < 5; j++)
+				if (det[i * 5 + j] != '_')
 					GR++;
-		if (GR == 5*(int)(wordmatrix[id].size())) {
+		if (GR == 5 * (int)(wordmatrix[id].size())) {
 			printstate3(hists, id, round);
 			putstring("Guessed correctly after ");
 			putint(round);
 			putstring(" tries."); changeline();
-			putstring("Score:");
+			if (round <= 10) {
+				setcolor(GREEN);
+				settextstyle(60, 0, "Congenial");
+				putstring2("YOU WON!");
+				changeline();
+				changeline();
+				changeline();
+			}
+			else {
+				setcolor(GREEN);
+				settextstyle(60, 0, "Congenial");
+				putstring2("YOU LOSE!");
+				changeline();
+				changeline();
+				changeline();
+			}
+			/*putstring("Score:");
 			clr(max(25 - round, 5) * 100);
 			putint(max(25 - round, 5) * 100);
 			changeline();
@@ -1401,16 +1443,18 @@ void EntryofFinalChallenge2(){
 			rat.second = min(rat.second + 1, 1000);
 			rat.first = (rat.first * (rat.second - 1) + max(25 - round, 5) * 100) / rat.second;
 			strv["RATING_" + strv["ACCOUNT"]] = encode(rat.first, rat.second);
-			writeconf();
-			scta(text);
-			win(hists, id);
+			writeconf();*/
+			settextstyle(18, 0, "Congenial");
+			setlinecolor(text);
+			settextcolor(text);
+			pause();
 			return;
-		}	
+		}
 	}
 }
 //
-void Finalchallenge2(){
-	while (1){
+void Finalchallenge2() {
+	while (1) {
 		clear_screen();
 		putstring("Wordle > easter egg > Final challenge2"); changeline();
 		int BG = cursory;
@@ -1422,7 +1466,7 @@ void Finalchallenge2(){
 		putstring("0)   exit"); changeline();
 		int ED = cursory;
 		ExMessage EM;
-		while (1){
+		while (1) {
 			EM = getmessage();
 			int t = 0;
 			if (EM.message == WM_CHAR) {
@@ -1527,12 +1571,12 @@ int main(int argc, char** argv) {
 	ifstream reader2("answers.txt");
 	while (reader2 >> WW) answers.push_back(WW);
 	ifstream reader3("dictionarynew.txt");
-	
-	while(getline(reader3,WW)){
-		if(WW.size()!=5) continue;
+
+	while (getline(reader3, WW)) {
+		if (WW.size() != 5) continue;
 		wordmatrix.push_back(WW);
 	}
-	
+
 	reader.close();
 	ifstream test_update("wdupdater.bat");
 	if (!test_update) test_update.close();
@@ -1568,22 +1612,24 @@ int main(int argc, char** argv) {
 	}
 	else tmpconf.close();
 	readconf();
+	/*
 	if (strv["DOWNLOAD_HEAD"] == "") strv["DOWNLOAD_HEAD"] = "";
 	if (!vals["LAST_UPDATE"]) vals["LAST_UPDATE"] = time(0);
 	if (!vals["UPDATE_INTERVAL"]) vals["UPDATE_INTERVAL"] = 604800;
 	if (!vals["TURNS"]) vals["TURNS"] = 20;
-	if (!vals["COLOR_BACK"]) vals["COLOR_BACK"] = 657930;
-	if (!vals["COLOR_TEXT"]) vals["COLOR_TEXT"] = 16448250;
+	if (!vals["COLOR_BACK"]) vals["COLOR_BACK"] = 16448250;// 657930
+	if (!vals["COLOR_TEXT"]) vals["COLOR_TEXT"] = 657930;//16448250
 	if (!vals["COLOR_RED"]) vals["COLOR_RED"] = 658170;
 	if (!vals["COLOR_GREEN"]) vals["COLOR_GREEN"] = 719370;
 	if (!vals["COLOR_BLUE"]) vals["COLOR_BLUE"] = 16386570;
 	if (!vals["COLOR_YELLOW"]) vals["COLOR_YELLOW"] = 719610;
-	if (!vals["COLOR_PURPLE"]) vals["COLOR_PURPLE"] = 16386810;
-	window = initgraph(1000, 500);
+	if (!vals["COLOR_PURPLE"]) vals["COLOR_PURPLE"] = 16386810;*/
+	window = initgraph(1000, 500,EX_SHOWCONSOLE);
+	setbkcolor(back);
 	setfillcolor(back);
 	setlinecolor(text);
 	settextcolor(text);
-	setbkcolor(back);
+
 	solidrectangle(0, 0, 1000, 290);
 	settextstyle(18, 0, LPCTSTR("CONSOLAS"));
 	scta(text);
@@ -1619,7 +1665,8 @@ int main(int argc, char** argv) {
 		changeline();
 		putstring("Press the button or press 0 on the keyboard to start.");
 		changeline();
-		pause();
+		clear_screen();
+		pause1();
 	}
 	if (!strv["RATING_" + strv["ACCOUNT"]].size()) strv["RATING_" + strv["ACCOUNT"]] = encode(0, 0);
 	if (!strv["VERSION"].size()) strv["VERSION"] = ver;
@@ -1641,9 +1688,17 @@ int main(int argc, char** argv) {
 	levels = { 0,1500,1800,2000,2100,2401 };
 	titles = { "Beginner","Learner","Expert","Master","Genius" };
 	colors = { text,green,blue,yellow,red };
+	//setfillcolor(WHITE); //setfillcolor(BLACK)
 	while (1) {
+		cout << "TEST" << endl;
 		clear_screen();
-		putstring("Wordle"); changeline();
+		//setbkcolor(GREY);
+		cleardevice();
+		settextcolor(GREEN);
+		settextstyle(40	, 0, "Congenial");
+		outtextxy(450,0,"Wordle"); changeline(); changeline();
+		settextstyle(18, 0, "Congenial");
+		settextcolor(BLACK); //settextcolor(WHITE);
 		rat = decode(strv["RATING_" + strv["ACCOUNT"]]);
 		putstring("Hello,");
 		clr(rat.first);
@@ -1657,8 +1712,8 @@ int main(int argc, char** argv) {
 		putstring(date);
 		putstring(")");
 		changeline();
-		putstring("As a student of USTC, your aim is to get a higher GPA");changeline();
-		putstring("Your task is to find the way to get the highest GPA 4.3");changeline();
+		putstring("As a student of USTC, your aim is to get a higher GPA"); changeline();
+		putstring("Your task is to find the way to get the highest GPA 4.3"); changeline();
 		putstring("Current Rating:");
 		clr(rat.first);
 		if (rat.first < 1000) putint(0);
